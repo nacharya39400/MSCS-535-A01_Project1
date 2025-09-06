@@ -60,11 +60,11 @@ spring.jpa.hibernate.ddl-auto=update
 
 Controllers discovered in code:
 
-- `POST /singUp` – create a user account (first/last name, email, password, etc.)
-- `POST /authenticate` – authenticate a user (sets session cookie)
-- `GET  /signOut` – terminate session
-- `POST /createAccount` – create a business/account record
-- `POST /getAccount` – fetch account details by id
+- `POST /singUp` – create a user account ( Authentication Not Required)
+- `POST /authenticate` – authenticate a user (Authentication Not Required)
+- `GET  /signOut` – terminate session (Authentication Not Required)
+- `POST /createAccount` – create a business/account record ( Authentication Required)
+- `POST /getAccount` – fetch account details by id ( Authentication Required)
 
 See `curl_test/requests.txt` for ready‑to‑run examples. For local, the included examples use `-k` to accept the self‑signed certificate.
 
