@@ -1,0 +1,55 @@
+# --------------------------------------------------------------------------------------------------------------------------
+# Create a new Account via Spring Boot /createAccount endpoint
+# Runs with -kv so curl ignores self-signed TLS cert errors
+# --------------------------------------------------------------------------------------------------------------------------
+curl -kv -X POST https://localhost:8443/createAccount \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountName": "Test Account",
+    "accountOwner": "Nirajan Acharya",
+    "accountEmail": "nirajan@example.com",
+    "accountBalance": 1000,
+    "address": "123 Test Street",
+    "phoneNumber": "1234567890"
+  }' \
+  -b cookies.txt
+
+
+# --------------------------------------------------------------------------------------------------------------------------
+# Get an existing Account by ID via Spring Boot /getAccount endpoint
+# Replace PUT-UUID-HERE with the actual UUID returned by createAccount
+# --------------------------------------------------------------------------------------------------------------------------
+curl -kv -X POST https://localhost:8443/getAccount \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountId": "b5ff83b1-ba00-4148-b21f-ccc818b081b2"
+  }' \
+  -b cookies.txt
+
+# --------------------------------------------------------------------------------------------------------------------------
+# Send a POST request to create a new user account
+# --------------------------------------------------------------------------------------------------------------------------
+curl -kv -X POST https://localhost:8443/singUp \
+  -H "Content-Type: application/json" \
+  -d '{
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "password": "Password123!",
+        "address": "123 Main Street",
+        "phoneNumber": "1234567890"
+      }' \
+      -c cookies.txt
+
+# --------------------------------------------------------------------------------------------------------------------------
+# Send a POST request to authenticate a user
+# --------------------------------------------------------------------------------------------------------------------------
+curl -kv -X POST "https://localhost:8443/authenticate" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john.doe@example.com","password":"Password123!"}' \
+  -c cookies.txt
+
+  # --------------------------------------------------------------------------------------------------------------------------
+# Sing Out
+# --------------------------------------------------------------------------------------------------------------------------
+ curl -kv -X GET https://localhost:8443/signOut -b cookies.txt

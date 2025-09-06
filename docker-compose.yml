@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  postgres:
+    build:
+      context: ./postgresql
+      dockerfile: Dockerfile
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: account
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - secure-network
+
+  springboot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: springboot-app
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/account?ssl=true&sslmode=verify-full&sslrootcert=/app/certs/root.crt
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8443:8443"
+    networks:
+      - secure-network
+
+networks:
+  secure-network:
+
+volumes:
+  postgres_data:
