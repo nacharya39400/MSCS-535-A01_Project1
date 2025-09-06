@@ -104,10 +104,10 @@ curl -kv -X POST https://localhost:8443/singUp \
   -d '{
         "firstName": "John",
         "lastName": "Doe",
-        "email": "john.doe@example.com",
-        "password": "Password123!",
+        "email": "nirajan.acharya@gmail.com",
+        "password": "Test123!",
         "address": "123 Main Street",
-        "phoneNumber": "1234567890"
+        "phoneNumber": "3303079480"
       }' \
       -c cookies.txt
 ```
@@ -117,7 +117,7 @@ Authenticate:
 ```bash
 curl -kv -X POST "https://localhost:8443/authenticate" \
   -H "Content-Type: application/json" \
-  -d '{"email":"john.doe@example.com","password":"Password123!"}' \
+  -d '{"email":"nirajan.acharya@gmail.com","password":"Test123!"}' \
   -c cookies.txt
 ```
 
