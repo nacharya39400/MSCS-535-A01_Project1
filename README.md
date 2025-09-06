@@ -1,8 +1,11 @@
 # secure-software (Spring Boot + PostgreSQL over TLS)
 
+[Running the Project Live](running_app.mp4)
+
 **Last updated:** 2025-09-06
 
 This repository is a secure-by-default Java Spring Boot REST API with a PostgreSQL backend. It demonstrates:
+
 - End-to-end **TLS**: the API serves **HTTPS** on port **8443** using a Java keystore, and PostgreSQL is configured to **require SSL** with server certs.
 - **Credential safety**: bcrypt password hashing, auth endpoints, and transport-layer encryption so credentials are never sent in cleartext.
 - **SQL injection resilience**: persistence uses Spring Data JPA (and/or prepared statements) so inputs are **parameterized**, not concatenated SQL.
@@ -10,7 +13,7 @@ This repository is a secure-by-default Java Spring Boot REST API with a PostgreS
 
 It is intended to address the scenario:
 
-> *Given a social‑engineering attack (e.g., a phishing email pretending to be IT asking employees for login credentials) **and** a web application that could otherwise be vulnerable to SQL injection: provide code and configuration that ensures secure access to the database over HTTPS/TLS and prevents SQL injection.*
+> _Given a social‑engineering attack (e.g., a phishing email pretending to be IT asking employees for login credentials) **and** a web application that could otherwise be vulnerable to SQL injection: provide code and configuration that ensures secure access to the database over HTTPS/TLS and prevents SQL injection._
 
 ---
 
@@ -44,12 +47,12 @@ spring.jpa.hibernate.ddl-auto=update
 
 ## Threat Scenario → Controls Mapping (Phishing + SQLi)
 
-| Threat | Control in This Project | Where |
-|---|---|---|
+| Threat                                 | Control in This Project                                                                                                                                                          | Where                                                                                            |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Phishing attempts to steal credentials | Transport encryption (**HTTPS**), bcrypt hashing, and session auth prevent credential sniffing; sample `curl` uses TLS. Educate users to **never** enter creds from email links. | `application.properties` (TLS), `SecurityConfig.java` (auth), BCrypt via `BCryptPasswordEncoder` |
-| SQL Injection via form fields | Use **JPA repositories** / ORM which parameterize queries under the hood; no string‑built SQL. (Optional: JdbcTemplate with `?` placeholders shown below.) | `UserDAO.java`, `BusinessDAO.java`, `UserBO.java`, `BusinessBO.java` |
-| Data tampering / bad input | **Jakarta Bean Validation** (`@Valid`, annotations on DTOs) and a global `ValidationHandler` to return safe error messages. | `dto/*`, `controllers/validation/ValidationHandler.java` |
-| MITM of DB connection | **PostgreSQL TLS** with server cert, and JDBC set to `sslmode=verify-full` with `root.crt`. | `postgresql/Dockerfile`, `application.properties` |
+| SQL Injection via form fields          | Use **JPA repositories** / ORM which parameterize queries under the hood; no string‑built SQL. (Optional: JdbcTemplate with `?` placeholders shown below.)                       | `UserDAO.java`, `BusinessDAO.java`, `UserBO.java`, `BusinessBO.java`                             |
+| Data tampering / bad input             | **Jakarta Bean Validation** (`@Valid`, annotations on DTOs) and a global `ValidationHandler` to return safe error messages.                                                      | `dto/*`, `controllers/validation/ValidationHandler.java`                                         |
+| MITM of DB connection                  | **PostgreSQL TLS** with server cert, and JDBC set to `sslmode=verify-full` with `root.crt`.                                                                                      | `postgresql/Dockerfile`, `application.properties`                                                |
 
 ---
 
@@ -57,10 +60,10 @@ spring.jpa.hibernate.ddl-auto=update
 
 Controllers discovered in code:
 
-- `POST /singUp` – create a user account (first/last name, email, password, etc.)  
-- `POST /authenticate` – authenticate a user (sets session cookie)  
-- `GET  /signOut` – terminate session  
-- `POST /createAccount` – create a business/account record  
+- `POST /singUp` – create a user account (first/last name, email, password, etc.)
+- `POST /authenticate` – authenticate a user (sets session cookie)
+- `GET  /signOut` – terminate session
+- `POST /createAccount` – create a business/account record
 - `POST /getAccount` – fetch account details by id
 
 See `curl_test/requests.txt` for ready‑to‑run examples. For local, the included examples use `-k` to accept the self‑signed certificate.
@@ -70,6 +73,7 @@ See `curl_test/requests.txt` for ready‑to‑run examples. For local, the inclu
 ## Build & Run
 
 ### Prerequisites
+
 - Docker + Docker Compose
 - (Optional) Java 21 + Maven 3.9 if you want to run outside Docker
 
@@ -114,12 +118,40 @@ Authenticate:
 curl -kv -X POST "https://localhost:8443/authenticate" \
   -H "Content-Type: application/json" \
   -d '{"email":"john.doe@example.com","password":"Password123!"}' \
-  -c cookies.txt```
+  -c cookies.txt
+```
 
 Sign out:
 
 ```bash
  curl -kv -X GET https://localhost:8443/signOut -b cookies.txt
+```
+
+Create Business Account:
+
+```bash
+curl -kv -X POST https://localhost:8443/createAccount \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountName": "Test Account",
+    "accountOwner": "Nirajan Acharya",
+    "accountEmail": "nirajan@example.com",
+    "accountBalance": 1000,
+    "address": "123 Test Street",
+    "phoneNumber": "1234567890"
+  }' \
+  -b cookies.txt
+```
+
+Get Business Account:
+
+```bash
+curl -kv -X POST https://localhost:8443/getAccount \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountId": "b5ff83b1-ba00-4148-b21f-ccc818b081b2"
+  }' \
+  -b cookies.txt
 ```
 
 ---
